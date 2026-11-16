@@ -1,0 +1,10 @@
+{
+  "label": "Guías",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "slug": "/guias",
+    "title": "Guías de Urbox",
+    "description": "Guías paso a paso para configurar y usar Urbox."
+  }
+}

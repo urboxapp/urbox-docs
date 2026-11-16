@@ -1,0 +1,7 @@
+# Dependencies
+node_modules/
+
+# Docusaurus build output and caches
+build/
+.docusaurus/
+.cache-loader/
