@@ -1,0 +1,107 @@
+name: Deploy docs
+
+# Lives in the PUBLIC documentation repository. It builds the Docusaurus
+# site and publishes it to GitHub Pages on every push to main.
+#
+# One-time setup in the public repo:
+#   Settings → Pages → Build and deployment → Source: GitHub Actions.
+#
+# The site URL is derived from this repository, so no owner/repo name is
+# hardcoded. Optional overrides (Settings → Secrets and variables →
+# Actions → Variables): DOCS_SITE_URL, DOCS_BASE_URL.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Minimum permissions required by the GitHub Pages deployment flow.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Pages deployments must not overlap, and an in-flight deploy should not
+# be cancelled: GitHub can be left serving an older artifact.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure site URL
+        env:
+          DOCS_SITE_URL: ${{ vars.DOCS_SITE_URL }}
+          DOCS_BASE_URL: ${{ vars.DOCS_BASE_URL }}
+        run: |
+          set -euo pipefail
+          repo="${GITHUB_REPOSITORY#*/}"
+
+          # Project pages live at https://OWNER.github.io/REPO/.
+          # User/org pages (OWNER.github.io) live at the domain root.
+          if [ "${repo}" = "${GITHUB_REPOSITORY_OWNER}.github.io" ]; then
+            base="/"
+          else
+            base="/${repo}/"
+          fi
+
+          url="https://${GITHUB_REPOSITORY_OWNER}.github.io"
+
+          # Explicit repository variables win, for custom domains.
+          [ -n "${DOCS_SITE_URL}" ] && url="${DOCS_SITE_URL}"
+          [ -n "${DOCS_BASE_URL}" ] && base="${DOCS_BASE_URL}"
+
+          {
+            echo "DOCUSAURUS_URL=${url}"
+            echo "DOCUSAURUS_BASE_URL=${base}"
+            echo "DOCUSAURUS_REPO=${GITHUB_REPOSITORY}"
+            echo "DOCUSAURUS_EDIT_URL=https://github.com/${GITHUB_REPOSITORY}/tree/${GITHUB_REF_NAME}/docs/"
+          } >> "${GITHUB_ENV}"
+
+          echo "Building for ${url}${base}"
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify build output
+        run: |
+          set -euo pipefail
+          test -f build/index.html
+          test -d build/assets
+          echo "Build output looks complete."
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: build
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5
