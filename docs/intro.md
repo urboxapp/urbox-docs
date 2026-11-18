@@ -14,7 +14,8 @@ Aquí encontrarás guías paso a paso pensadas para equipos de negocio: cómo co
 
 ## Primeros pasos
 
-- [Configuración de agentes IA](./guias/configuracion-agentes-ia.md) — cómo activar la IA, entrenarla con tu información y probarla antes de que responda a clientes.
+- [Configuración de agentes IA](./configuracion-agentes-ia.md) — cómo activar la IA, entrenarla con tu información y probarla antes de que responda a clientes.
+- [Crear una automatización para tomar pedidos](./automatizacion-tomar-pedido.md) — ejemplo paso a paso de una automatización que recibe un pedido y lo registra en el embudo.
 
 ## Cómo está organizada
 

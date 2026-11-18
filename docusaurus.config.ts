@@ -94,6 +94,10 @@ const config: Config = {
               label: 'Configuración de agentes IA',
               to: '/guias/configuracion-agentes-ia',
             },
+            {
+              label: 'Automatización para tomar pedidos',
+              to: '/automatizacion-tomar-pedido',
+            },
           ],
         },
         {
