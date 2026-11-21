@@ -98,6 +98,10 @@ const config: Config = {
               label: 'Automatización para tomar pedidos',
               to: '/automatizacion-tomar-pedido',
             },
+            {
+              label: 'Automatización para tomar pedidos',
+              to: '/automatizacion-tomar-pedido',
+            },
           ],
         },
         {
